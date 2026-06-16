@@ -1,0 +1,1 @@
+#storing the given doc we get in pinecoe
