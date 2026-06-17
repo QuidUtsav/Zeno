@@ -1,19 +1,12 @@
 def chunking_with_overlapping(text,chunk_size=200,overlap=50):
-    tokens= text.split(" ")
-    
+    tokens = text.split(" ")
+    i=0;
     chunks=[]
-    i=0
-    while i<len(tokens):
-        window = tokens[i:i+chunk_size]
-        
-        chunk_text=" ".join(window)
+    while(i<len(tokens)):
+        context_window=tokens[i:i+chunk_size]
         chunks.append({
-            "chunk_id":len(chunks),
-            "text":chunk_text,
-            "start_token":i
-        })
-        i+=chunk_size-overlap
-    
-    
-    return chunks
+            "id":len(chunks),
+            "text":" ".join(context_window)})
+        i+=chunk_size-overlap    
 
+    return chunks
