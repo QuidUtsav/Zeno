@@ -9,7 +9,8 @@ def extract_text_from_pdf(file_address):
     text =[]
     for i in range(number_of_page):
         page = reader.pages[i]
-        if page.text:
-            text.append(page.extract_text)
+        page_text = page.extract_text()
+        if page_text:
+            text.append(page_text)
 
     return " ".join(text)
