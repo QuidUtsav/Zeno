@@ -1,18 +1,24 @@
 #retrieving the highest matched relevant chunk from the pinecone
 
 from sentence_transformers import SentenceTransformer
-
+from pinecone_store import index
 model = SentenceTransformer("sentence-transformers/all-MiniLM-L6-v2")
-
 
 def retrieve(query,top_k=5):
     
-    #first convert the query with same embedding model i set in pinceconee web
-    query_embedding = model.encode(query)
+    query_embedding = model.encode(query).tolist()
     
-    #next use index.query and get result
+    result = index.query(
+        vector=query_embedding,
+        top_k=top_k,
+        include_metadata=True   
+    )
     
-    #slice through result to get text data and use generation.py to reply
-    
-    
-    pass
+    result = result["matches"][:top_k]
+    result_text=[]
+    for r in result:
+        result_text.append(r["metadata"]["text"])
+    return " ".join(result_text)
+
+output =retrieve("return policy",top_k=1)
+print(output)
