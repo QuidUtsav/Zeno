@@ -2,8 +2,9 @@
 
 from sentence_transformers import SentenceTransformer
 from pinecone_store import index
-model = SentenceTransformer("sentence-transformers/all-MiniLM-L6-v2")
+from pinecone_store import embedding_model
 
+model = SentenceTransformer("sentence-transformers/all-MiniLM-L6-v2")
 def retrieve(query,top_k=5):
     
     query_embedding = model.encode(query).tolist()
@@ -20,5 +21,4 @@ def retrieve(query,top_k=5):
         result_text.append(r["metadata"]["text"])
     return " ".join(result_text)
 
-output =retrieve("return policy",top_k=1)
-print(output)
+

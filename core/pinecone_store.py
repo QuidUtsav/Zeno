@@ -2,14 +2,14 @@
 from pinecone import Pinecone
 import os
 from dotenv import load_dotenv
-
+from sentence_transformers import SentenceTransformer
 load_dotenv()
 
 pc = Pinecone(api_key=os.getenv("pc_api_key"))
 index = pc.Index("zeno")
+embedding_model = SentenceTransformer("sentence-transformers/all-MiniLM-L6-v2")
 
 def upsert(chunks,embeddings,filename):
-    
     vectors=[]
     for chunk,embedding in zip(chunks,embeddings):
         vectors.append({
@@ -21,3 +21,5 @@ def upsert(chunks,embeddings,filename):
             }
         })
     index.upsert(vectors=vectors)
+    
+    
