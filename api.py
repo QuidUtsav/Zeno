@@ -9,20 +9,16 @@ from core.retrieval import retrieve
 
 app = FastAPI()
 
-
 class ChatRequest(BaseModel):
     query: str
-    session_id: str
-
+    session_id: str 
 
 @app.post("/admin/upload")
-
 
 @app.post("/chat")
 async def chat(request: ChatRequest):
     context = retrieve(request.query)
     pass
-
 
 @app.get("/", response_class=HTMLResponse)
 async def customer_ui():
