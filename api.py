@@ -1,7 +1,7 @@
 from fastapi import FastAPI, UploadFile, File, HTTPException
 from fastapi.responses import HTMLResponse
 from pydantic import BaseModel
-
+import os
 from core.pdf_parser import extract_text_from_pdf
 from core.chunking import chunking_with_overlapping
 from core.pinecone_store import upsert, embedding_model
@@ -61,12 +61,21 @@ def chat(request: ChatRequest):
 
     return {"answer": response, "session_id": request.session_id}
 
-
 @app.get("/", response_class=HTMLResponse)
 def customer_ui():
-    return "<h1>Zeno customer chat — placeholder</h1>"
+    file_path = os.path.join("frontend", "index.html")
+    if not os.path.exists(file_path):
+        raise HTTPException(status_code=404, detail="frontend/index.html not found")
+        
+    with open(file_path, "r", encoding="utf-8") as f:
+        return f.read()
 
 
 @app.get("/admin", response_class=HTMLResponse)
 def admin_ui():
-    return "<h1>Zeno admin upload — placeholder</h1>"
+    file_path = os.path.join("frontend", "admin.html")
+    if not os.path.exists(file_path):
+        raise HTTPException(status_code=404, detail="frontend/admin.html not found")
+        
+    with open(file_path, "r", encoding="utf-8") as f:
+        return f.read()
