@@ -6,3 +6,4 @@ python-dotenv==1.2.2
 pinecone==9.1.0
 sentence-transformers==5.5.1
 pypdf==6.13.3
+python-multipart==0.0.32
