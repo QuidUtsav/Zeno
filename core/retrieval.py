@@ -1,8 +1,14 @@
 #retrieving the highest matched relevant chunk from the pinecone
 
 from sentence_transformers import SentenceTransformer
-from pinecone_store import index
-from pinecone_store import embedding_model
+from pinecone import Pinecone
+import os
+from dotenv import load_dotenv
+from sentence_transformers import SentenceTransformer
+load_dotenv()
+
+pc = Pinecone(api_key=os.getenv("pc_api_key"))
+index = pc.Index("zeno")
 
 model = SentenceTransformer("sentence-transformers/all-MiniLM-L6-v2")
 def retrieve(query,top_k=5):
