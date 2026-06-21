@@ -1,7 +1,8 @@
-#retrieving the highest matched relevant chunk from the pinecone
+# retrieving the highest matched relevant chunk from the pinecone
 
 from core.pinecone_store import index, embedding_model
-def retrieve(query,top_k=5):
+
+def retrieve(query, top_k=5):
     
     query_embedding = embedding_model.encode(query).tolist()
     
@@ -11,9 +12,10 @@ def retrieve(query,top_k=5):
         include_metadata=True   
     )
     
-    result_text=[]
-    for r in result:
-        result_text.append(r["metadata"]["text"])
+    result_text = []
+    
+    for r in result.get("matches", []):
+        if "metadata" in r and "text" in r["metadata"]:
+            result_text.append(r["metadata"]["text"])
+            
     return " ".join(result_text)
-
-
