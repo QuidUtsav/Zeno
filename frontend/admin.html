@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Zeno — Admin</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'Inter', -apple-system, sans-serif;
+    background: #0d0f14;
+    color: #e8e6f0;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+  }
+
+  header {
+    padding: 1rem 1.5rem;
+    border-bottom: 0.5px solid rgba(255,255,255,0.08);
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .logo {
+    width: 32px; height: 32px; border-radius: 8px;
+    background: linear-gradient(135deg, #00b894, #00d68f);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 16px; font-weight: 700; color: white;
+  }
+
+  .header-title { font-size: 16px; font-weight: 600; letter-spacing: -0.01em; }
+
+  .back-link {
+    margin-left: auto;
+    font-size: 12px;
+    color: rgba(255,255,255,0.35);
+    text-decoration: none;
+    border: 0.5px solid rgba(255,255,255,0.12);
+    padding: 4px 10px;
+    border-radius: 6px;
+    transition: all 0.15s;
+  }
+  .back-link:hover { color: #00d68f; border-color: rgba(0,214,143,0.4); }
+
+  main {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 2rem;
+  }
+
+  .upload-card {
+    width: 100%;
+    max-width: 440px;
+    background: rgba(255,255,255,0.03);
+    border: 0.5px solid rgba(255,255,255,0.08);
+    border-radius: 16px;
+    padding: 2rem;
+  }
+
+  .upload-card h2 { font-size: 18px; margin-bottom: 6px; }
+  .upload-card p { font-size: 13px; color: rgba(255,255,255,0.4); margin-bottom: 1.5rem; line-height: 1.5; }
+
+  .drop-zone {
+    border: 1.5px dashed rgba(255,255,255,0.15);
+    border-radius: 12px;
+    padding: 2.5rem 1.5rem;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.15s;
+    margin-bottom: 1rem;
+  }
+  .drop-zone:hover, .drop-zone.dragover {
+    border-color: rgba(0,184,148,0.5);
+    background: rgba(0,184,148,0.04);
+  }
+
+  .drop-zone-icon { font-size: 28px; margin-bottom: 8px; opacity: 0.4; }
+  .drop-zone-text { font-size: 13px; color: rgba(255,255,255,0.4); }
+  .drop-zone-text strong { color: #55efc4; }
+
+  #file-input { display: none; }
+
+  .file-chip {
+    display: none;
+    align-items: center;
+    gap: 8px;
+    background: rgba(0,184,148,0.08);
+    border: 0.5px solid rgba(0,184,148,0.2);
+    border-radius: 8px;
+    padding: 8px 12px;
+    font-size: 13px;
+    margin-bottom: 1rem;
+  }
+  .file-chip.visible { display: flex; }
+  .file-chip span { flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+  #upload-btn {
+    width: 100%;
+    padding: 0.7rem;
+    background: #00b894;
+    border: none;
+    border-radius: 10px;
+    color: white;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.15s;
+  }
+  #upload-btn:hover { background: #00d68f; }
+  #upload-btn:disabled { background: rgba(0,184,148,0.25); cursor: not-allowed; }
+
+  .status-msg {
+    margin-top: 1rem;
+    font-size: 13px;
+    padding: 0.6rem 0.8rem;
+    border-radius: 8px;
+    display: none;
+  }
+  .status-msg.success { display: block; background: rgba(0,184,148,0.1); border: 0.5px solid rgba(0,184,148,0.25); color: #55efc4; }
+  .status-msg.error { display: block; background: rgba(231,76,60,0.1); border: 0.5px solid rgba(231,76,60,0.25); color: #ff7675; }
+  .status-msg.loading { display: block; background: rgba(255,255,255,0.05); border: 0.5px solid rgba(255,255,255,0.1); color: rgba(255,255,255,0.5); }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo">Z</div>
+  <span class="header-title">Zeno Admin</span>
+  <a href="/" class="back-link">← Back to chat</a>
+</header>
+
+<main>
+  <div class="upload-card">
+    <h2>Upload knowledge base</h2>
+    <p>Upload a PDF or text file with your store policies, FAQs, or product info. Zeno will use it to answer customer questions.</p>
+
+    <div class="drop-zone" id="drop-zone">
+      <div class="drop-zone-icon">📄</div>
+      <div class="drop-zone-text"><strong>Click to browse</strong> or drag a file here</div>
+      <div class="drop-zone-text" style="margin-top:4px;font-size:11px;">PDF or TXT</div>
+    </div>
+    <input type="file" id="file-input" accept=".pdf,.txt">
+
+    <div class="file-chip" id="file-chip">
+      <span id="file-name"></span>
+    </div>
+
+    <button id="upload-btn" onclick="uploadFile()" disabled>Upload</button>
+
+    <div class="status-msg" id="status-msg"></div>
+  </div>
+</main>
+
+<script>
+  const dropZone = document.getElementById('drop-zone');
+  const fileInput = document.getElementById('file-input');
+  const fileChip = document.getElementById('file-chip');
+  const fileName = document.getElementById('file-name');
+  const uploadBtn = document.getElementById('upload-btn');
+  const statusMsg = document.getElementById('status-msg');
+  let selectedFile = null;
+
+  dropZone.addEventListener('click', () => fileInput.click());
+
+  dropZone.addEventListener('dragover', e => {
+    e.preventDefault();
+    dropZone.classList.add('dragover');
+  });
+  dropZone.addEventListener('dragleave', () => dropZone.classList.remove('dragover'));
+  dropZone.addEventListener('drop', e => {
+    e.preventDefault();
+    dropZone.classList.remove('dragover');
+    if (e.dataTransfer.files.length) setFile(e.dataTransfer.files[0]);
+  });
+
+  fileInput.addEventListener('change', () => {
+    if (fileInput.files.length) setFile(fileInput.files[0]);
+  });
+
+  function setFile(file) {
+    selectedFile = file;
+    fileName.textContent = file.name;
+    fileChip.classList.add('visible');
+    uploadBtn.disabled = false;
+    statusMsg.className = 'status-msg';
+  }
+
+  async function uploadFile() {
+    if (!selectedFile) return;
+
+    uploadBtn.disabled = true;
+    statusMsg.className = 'status-msg loading';
+    statusMsg.textContent = 'Processing and embedding document...';
+
+    const formData = new FormData();
+    formData.append('file', selectedFile);
+
+    try {
+      const res = await fetch('/admin/upload', { method: 'POST', body: formData });
+      if (!res.ok) throw new Error('Upload failed');
+      const data = await res.json();
+      statusMsg.className = 'status-msg success';
+      statusMsg.textContent = `Uploaded "${data.filename}" — ${data.chunks} chunks indexed.`;
+    } catch (err) {
+      statusMsg.className = 'status-msg error';
+      statusMsg.textContent = 'Upload failed. Please try again.';
+    } finally {
+      uploadBtn.disabled = false;
+    }
+  }
+</script>
+</body>
+</html>
