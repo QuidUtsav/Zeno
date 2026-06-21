@@ -1,19 +1,9 @@
 #retrieving the highest matched relevant chunk from the pinecone
 
-from sentence_transformers import SentenceTransformer
-from pinecone import Pinecone
-import os
-from dotenv import load_dotenv
-from sentence_transformers import SentenceTransformer
-load_dotenv()
-
-pc = Pinecone(api_key=os.getenv("pc_api_key"))
-index = pc.Index("zeno")
-
-model = SentenceTransformer("sentence-transformers/all-MiniLM-L6-v2")
+from core.pinecone_store import index, embedding_model
 def retrieve(query,top_k=5):
     
-    query_embedding = model.encode(query).tolist()
+    query_embedding = embedding_model.encode(query).tolist()
     
     result = index.query(
         vector=query_embedding,
@@ -21,7 +11,6 @@ def retrieve(query,top_k=5):
         include_metadata=True   
     )
     
-    result = result["matches"][:top_k]
     result_text=[]
     for r in result:
         result_text.append(r["metadata"]["text"])
