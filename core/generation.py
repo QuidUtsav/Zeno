@@ -3,7 +3,7 @@ import os
 from dotenv import load_dotenv
 
 load_dotenv()
-client = Groq(api_key=os.getenv("api_key"))
+client = Groq(api_key=os.getenv("model_api_key"))
 
 # --- Local Qwen (uncomment to use locally, comment out Groq section) ---
 # from transformers import AutoModelForCausalLM, AutoTokenizer
@@ -11,7 +11,7 @@ client = Groq(api_key=os.getenv("api_key"))
 # model = AutoModelForCausalLM.from_pretrained(model_name, dtype="float16", device_map="auto")
 # tokenizer = AutoTokenizer.from_pretrained(model_name)
 
-def generate_response(query, system_prompt="You are Operus. You are a helpful assistant.", max_new_tokens=200, conversation_history=None):
+def generate_response(query, system_prompt="You are a customer support assistant. Answer the customer's question using only the context provided below. If the answer isn't in the context, say you don't have that information and suggest contacting support directly — do not guess or make anything up.", max_new_tokens=200, conversation_history=None):
     system_message = {"role": "system", "content": system_prompt}
     current_user_message = {"role": "user", "content": query}
     
